@@ -4,6 +4,7 @@ import { API } from 'aws-amplify';
 import { useNavigate } from 'react-router-dom';
 import LoaderButton from '../components/LoaderButton';
 import { onError } from '../lib/errorLib';
+import { s3Upload } from "../lib/awsLib";
 import config from '../config';
 import './NewNote.css';
 
@@ -36,8 +37,10 @@ export default function NewNote() {
     setIsLoading(true);
   
     try {
-      await createNote({ content });
-      nav("/");
+      const attachment = file.current ? await s3Upload(file.current) : null;
+
+      await createNote({ content, attachment });
+      nav('/');
     } catch (e) {
       onError(e);
       setIsLoading(false);
@@ -45,7 +48,7 @@ export default function NewNote() {
   }
   
   function createNote(note) {
-    return API.post("notes", "/notes", {
+    return API.post('notes', '/notes', {
       body: note,
     });
   }
