@@ -20,6 +20,7 @@ export function StorageStack({ stack, app }) {
       noteId: "string",
     },
     primaryIndex: { partitionKey: "userId", sortKey: "noteId" },
+    // TODO: change sort key to createdAt
   });
 
   return {
