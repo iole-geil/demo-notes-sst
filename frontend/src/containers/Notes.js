@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { API, Storage } from 'aws-amplify';
 import Form from 'react-bootstrap/Form';
 import { onError } from '../lib/errorLib';
+import { s3Upload } from '../lib/awsLib';
 import LoaderButton from '../components/LoaderButton';
 import config from '../config';
 import './Notes.css';
@@ -52,6 +53,12 @@ export default function Notes() {
     file.current = event.target.files[0];
   }
   
+  function saveNote(note) {
+    return API.put('notes', `/notes/${id}`, {
+      body: note,
+    });
+  }
+  
   async function handleSubmit(event) {
     let attachment;
   
@@ -67,6 +74,22 @@ export default function Notes() {
     }
   
     setIsLoading(true);
+  
+    try {
+      if (file.current) {
+        attachment = await s3Upload(file.current);
+        // TODO: delete old file from S3
+      }
+  
+      await saveNote({
+        content,
+        attachment: attachment || note.attachment,
+      });
+      nav('/');
+    } catch (e) {
+      onError(e);
+      setIsLoading(false);
+    }
   }
   
   async function handleDelete(event) {
