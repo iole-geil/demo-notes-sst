@@ -13,6 +13,7 @@ export const main = handler(async (event) => {
   };
 
   await dynamoDb.delete(params);
+  // TODO: Delete file from S3
 
   return { status: true };
 });
